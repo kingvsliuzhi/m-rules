@@ -1,2 +1,3 @@
 # NAME: Direct-rules
 payload:
+  - DOMAIN-SUFFIX,qq
