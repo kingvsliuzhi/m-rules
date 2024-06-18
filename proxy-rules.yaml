@@ -1,3 +1,5 @@
+# NAME: Proxy-rules
+payload:
 # talkatone
 DOMAIN-SUFFIX,mobilefuse.com
 DOMAIN-SUFFIX,inmobi.com
