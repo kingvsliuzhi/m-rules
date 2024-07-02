@@ -1,36 +1,48 @@
-# This is a basic workflow to help you get started with Actions
+name: Config Update
 
-name: CI
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-  # Allows you to run this workflow manually from the Actions tab
+    branches: [ main ]
   workflow_dispatch:
+  schedule:
+    - cron: '0 12 * * *'
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v2
+    - name: "Setup sing-box"
+      env:
+        SING_BOX_DEB_URL: "https://github.com/SagerNet/sing-box/releases/download/v1.9.0/sing-box_1.9.0_linux_amd64.deb"
+      run: |
+          set -Eeuo pipefail
+          wget -O sing-box.deb $SING_BOX_DEB_URL
+          sudo dpkg -i sing-box.deb
+    - name: Set up Python3
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.x
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pandas requests pyyaml
+    - name: Run script
+      run: python ../main.py
+      working-directory: ./rule/
+    - name: Commit and push config.json
+      run: |
+        git config --global user.email "action@github.com"
+        git config --global user.name "GitHub Action"
+        git add ./rule/*.json
+        git add ./rule/*.srs
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+        # 检查是否有文件被修改
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+          exit 0
+        else
+          git commit -m "Update rules"
+          git push
+        fi
