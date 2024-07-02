@@ -1,1 +1,2 @@
 https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/QuantumultX/TikTok/TikTok.list
+https://raw.githubusercontent.com/kingvsliuzhi/m-rules/main/proxy-rules.yaml
