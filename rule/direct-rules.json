@@ -1,4 +1,5 @@
 {
+  "hash": "7279428894158c5085144a0ae759366425c9fce9dfbe2b15b3afae0a6c5ee5d0",
   "rules": [
     {
       "domain_suffix": [
@@ -6,5 +7,5 @@
       ]
     }
   ],
-  "version": 3
+  "version": 4
 }

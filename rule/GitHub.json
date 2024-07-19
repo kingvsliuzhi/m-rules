@@ -1,4 +1,5 @@
 {
+  "hash": "b23feb829170073c2baf542d21a887eab9b7169f8ade30e0363f9deddaeab917",
   "rules": [
     {
       "domain_keyword": [
@@ -39,5 +40,5 @@
       ]
     }
   ],
-  "version": 3
+  "version": 4
 }
