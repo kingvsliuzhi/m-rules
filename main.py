@@ -136,7 +136,7 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
         link = future_to_link[future]
         try:
             df, rules = future.result()
-            base_name = os.path.basename(link).split('.')[0].upper()
+            base_name = os.path.basename(link).split('.')[0]
             if base_name not in results:
                 results[base_name] = {'df': pd.DataFrame(), 'rules': []}
             results[base_name]['df'] = pd.concat([results[base_name]['df'], df], ignore_index=True)
