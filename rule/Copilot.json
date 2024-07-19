@@ -1,5 +1,4 @@
 {
-  "hash": "c6a8dd0780b9f21489608653d075481f85935723eb4f600d5cbb389b732a44ee",
   "rules": [
     {
       "domain": [
@@ -67,5 +66,5 @@
       ]
     }
   ],
-  "version": 4
+  "version": 5
 }
