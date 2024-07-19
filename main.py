@@ -8,12 +8,11 @@ import yaml
 import ipaddress
 
 # 映射字典
-MAP_DICT = {
-    'DOMAIN-SUFFIX': 'domain_suffix', 'HOST-SUFFIX': 'domain_suffix', 'DOMAIN': 'domain', 'HOST': 'domain', 'host': 'domain',
-    'DOMAIN-KEYWORD': 'domain_keyword', 'HOST-KEYWORD': 'domain_keyword', 'host-keyword': 'domain_keyword', 'IP-CIDR': 'ip_cidr',
-    'ip-cidr': 'ip_cidr', 'IP-CIDR6': 'ip_cidr', 'IP6-CIDR': 'ip_cidr', 'SRC-IP-CIDR': 'source_ip_cidr', 'GEOIP': 'geoip', 
-    'DST-PORT': 'port', 'SRC-PORT': 'source_port', "URL-REGEX": "domain_regex", "DOMAIN-REGEX": "domain_regex", "PROCESS-NAME": "process_name"
-}
+MAP_DICT = {'DOMAIN-SUFFIX': 'domain_suffix', 'HOST-SUFFIX': 'domain_suffix', 'DOMAIN': 'domain', 'HOST': 'domain', 'host': 'domain',
+            'DOMAIN-KEYWORD':'domain_keyword', 'HOST-KEYWORD': 'domain_keyword', 'host-keyword': 'domain_keyword', 'IP-CIDR': 'ip_cidr',
+            'ip-cidr': 'ip_cidr', 'IP-CIDR6': 'ip_cidr', 
+            'IP6-CIDR': 'ip_cidr','SRC-IP-CIDR': 'source_ip_cidr', 'GEOIP': 'geoip', 'DST-PORT': 'port',
+            'SRC-PORT': 'source_port', "URL-REGEX": "domain_regex", "DOMAIN-REGEX": "domain_regex","PROCESS-NAME": "process_name"}
 
 def read_yaml_from_url(url):
     response = requests.get(url)
@@ -25,6 +24,7 @@ def read_list_from_url(url):
     df = pd.read_csv(url, header=None, names=['pattern', 'address', 'other', 'other2', 'other3'])
     filtered_rows = []
     rules = []
+    # 处理逻辑规则
     if 'AND' in df['pattern'].values:
         and_rows = df[df['pattern'].str.contains('AND', na=False)]
         for _, row in and_rows.iterrows():
@@ -64,6 +64,7 @@ def is_ipv4_or_ipv6(address):
 
 def parse_and_convert_to_dataframe(link):
     rules = []
+    # 根据链接扩展名分情况处理
     if link.endswith('.yaml') or link.endswith('.txt'):
         try:
             yaml_data = read_yaml_from_url(link)
@@ -88,7 +89,7 @@ def parse_and_convert_to_dataframe(link):
                         else:
                             pattern = 'DOMAIN'
                 else:
-                    pattern, address = item.split(',', 1)
+                    pattern, address = item.split(',', 1)  
                 rows.append({'pattern': pattern.strip(), 'address': address.strip(), 'other': None})
             df = pd.DataFrame(rows, columns=['pattern', 'address', 'other'])
         except:
@@ -97,6 +98,7 @@ def parse_and_convert_to_dataframe(link):
         df, rules = read_list_from_url(link)
     return df, rules
 
+# 对字典进行排序，含list of dict
 def sort_dict(obj):
     if isinstance(obj, dict):
         return {k: sort_dict(obj[k]) for k in sorted(obj)}
@@ -107,54 +109,13 @@ def sort_dict(obj):
     else:
         return obj
 
-def parse_list_file(link, output_directory):
+def parse_list_file(link):
     try:
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            results = list(executor.map(parse_and_convert_to_dataframe, [link]))
-            dfs = [df for df, rules in results]
-            rules_list = [rules for df, rules in results]
-            df = pd.concat(dfs, ignore_index=True)
-        df = df[~df['pattern'].str.contains('#')].reset_index(drop=True)
-        df = df[df['pattern'].isin(MAP_DICT.keys())].reset_index(drop=True)
-        df = df.drop_duplicates().reset_index(drop=True)
-        df['pattern'] = df['pattern'].replace(MAP_DICT)
-        os.makedirs(output_directory, exist_ok=True)
-
-        result_rules = {"version": 1, "rules": []}
-        domain_entries = []
-        for pattern, addresses in df.groupby('pattern')['address'].apply(list).to_dict().items():
-            if pattern == 'domain_suffix':
-                rule_entry = {pattern: [address.strip() for address in addresses]}
-                result_rules["rules"].append(rule_entry)
-            elif pattern == 'domain':
-                domain_entries.extend([address.strip() for address in addresses])
-            else:
-                rule_entry = {pattern: [address.strip() for address in addresses]}
-                result_rules["rules"].append(rule_entry)
-        domain_entries = list(set(domain_entries))
-        if domain_entries:
-            result_rules["rules"].insert(0, {'domain': domain_entries})
-
-        if 'geoip' in link.lower():
-            file_name = os.path.join(output_directory, 'CNIP.json')
-            srs_path = os.path.join(output_directory, 'CNIP.srs')
-        elif 'geosite' in link.lower():
-            file_name = os.path.join(output_directory, 'CNSITE.json')
-            srs_path = os.path.join(output_directory, 'CNSITE.srs')
-        else:
-            file_name = os.path.join(output_directory, f"{os.path.basename(link).split('.')[0]}.json")
-            srs_path = file_name.replace(".json", ".srs")
-        
-        with open(file_name, 'w', encoding='utf-8') as output_file:
-            result_rules_str = json.dumps(sort_dict(result_rules), ensure_ascii=False, indent=2)
-            result_rules_str = result_rules_str.replace('\\\\', '\\')
-            output_file.write(result_rules_str)
-
-        os.system(f"sing-box rule-set compile --output {srs_path} {file_name}")
-        return file_name
-    except Exception as e:
-        print(f'获取链接出错，已跳过：{link}\n错误信息: {e}')
-        pass
+        df, rules = parse_and_convert_to_dataframe(link)
+        return df, rules
+    except:
+        print(f'获取链接出错，已跳过：{link}')
+        return pd.DataFrame(), []
 
 # 读取 links.txt 中的每个链接并生成对应的 JSON 文件
 with open("../links.txt", 'r') as links_file:
@@ -163,13 +124,65 @@ with open("../links.txt", 'r') as links_file:
 links = [l for l in links if l.strip() and not l.strip().startswith("#")]
 
 output_dir = "./"
-result_file_names = []
+results = {}
 
-for link in links:
-    result_file_name = parse_list_file(link, output_directory=output_dir)
-    if result_file_name:
-        result_file_names.append(result_file_name)
+# 并行处理所有链接
+with concurrent.futures.ThreadPoolExecutor() as executor:
+    future_to_link = {executor.submit(parse_list_file, link): link for link in links}
+    for future in concurrent.futures.as_completed(future_to_link):
+        link = future_to_link[future]
+        try:
+            df, rules = future.result()
+            base_name = os.path.basename(link).split('.')[0].upper()
+            if base_name not in results:
+                results[base_name] = {'df': pd.DataFrame(), 'rules': []}
+            results[base_name]['df'] = pd.concat([results[base_name]['df'], df], ignore_index=True)
+            results[base_name]['rules'].extend(rules)
+        except Exception as e:
+            print(f'链接 {link} 处理失败: {e}')
+
+# 处理和保存合并后的数据
+for base_name, data in results.items():
+    df = data['df']
+    rules_list = data['rules']
+    df = df[~df['pattern'].str.contains('#')].reset_index(drop=True)  # 删除pattern中包含#号的行
+    df = df[df['pattern'].isin(MAP_DICT.keys())].reset_index(drop=True)  # 删除不在字典中的pattern
+    df = df.drop_duplicates().reset_index(drop=True)  # 删除重复行
+    df['pattern'] = df['pattern'].replace(MAP_DICT)  # 替换pattern为字典中的值
+    os.makedirs(output_dir, exist_ok=True)  # 创建自定义文件夹
+
+    result_rules = {"version": 1, "rules": []}
+    domain_entries = []
+    for pattern, addresses in df.groupby('pattern')['address'].apply(list).to_dict().items():
+        if pattern == 'domain_suffix':
+            rule_entry = {pattern: [address.strip() for address in addresses]}
+            result_rules["rules"].append(rule_entry)
+        elif pattern == 'domain':
+            domain_entries.extend([address.strip() for address in addresses])
+        else:
+            rule_entry = {pattern: [address.strip() for address in addresses]}
+            result_rules["rules"].append(rule_entry)
+    # 删除 'domain_entries' 中的重复值
+    domain_entries = list(set(domain_entries))
+    if domain_entries:
+        result_rules["rules"].insert(0, {'domain': domain_entries})
+
+    # 处理逻辑规则
+    """
+    if rules_list != []:
+        result_rules["rules"].extend(rules_list)
+    """
+
+    # 使用 output_directory 拼接完整路径
+    file_name = os.path.join(output_dir, f"{base_name}.json")
+    with open(file_name, 'w', encoding='utf-8') as output_file:
+        result_rules_str = json.dumps(sort_dict(result_rules), ensure_ascii=False, indent=2)
+        result_rules_str = result_rules_str.replace('\\\\', '\\')
+        output_file.write(result_rules_str)
+
+    srs_path = file_name.replace(".json", ".srs")
+    os.system(f"sing-box rule-set compile --output {srs_path} {file_name}")
 
 # 打印生成的文件名
 # for file_name in result_file_names:
-#     print(file_name)
+    # print(file_name)
