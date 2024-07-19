@@ -1,0 +1,10 @@
+{
+  "rules": [
+    {
+      "domain_suffix": [
+        "qq.com"
+      ]
+    }
+  ],
+  "version": 1
+}
