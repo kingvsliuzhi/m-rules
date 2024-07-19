@@ -6,6 +6,7 @@ import json
 import requests
 import yaml
 import ipaddress
+import hashlib
 
 # 映射字典
 MAP_DICT = {
@@ -115,11 +116,15 @@ def parse_list_file(link):
         print(f'获取链接出错，已跳过：{link}')
         return pd.DataFrame(), []
 
-def get_version(file_path):
+def get_version(file_path, new_hash):
     if os.path.exists(file_path):
         with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
-            return data.get('version', 0) + 1
+            old_hash = data.get('hash', '')
+            if old_hash != new_hash:
+                return data.get('version', 0) + 1
+            else:
+                return data.get('version', 0)
     return 1
 
 with open("../links.txt", 'r') as links_file:
@@ -154,9 +159,8 @@ for base_name, data in results.items():
     os.makedirs(output_dir, exist_ok=True)
 
     file_name = os.path.join(output_dir, f"{base_name}.json")
-    version = get_version(file_name)
-
-    result_rules = {"version": version, "rules": []}
+    
+    result_rules = {"rules": []}
     domain_entries = []
     for pattern, addresses in df.groupby('pattern')['address'].apply(list).to_dict().items():
         if pattern == 'domain_suffix':
@@ -176,10 +180,21 @@ for base_name, data in results.items():
         result_rules["rules"].extend(rules_list)
     """
 
+    result_rules_str = json.dumps(sort_dict(result_rules), ensure_ascii=False, indent=2)
+    result_rules_str = result_rules_str.replace('\\\\', '\\')
+    
+    # Calculate new hash
+    new_hash = hashlib.sha256(result_rules_str.encode('utf-8')).hexdigest()
+    
+    # Get version based on new hash
+    version = get_version(file_name, new_hash)
+    
+    # Update result with version and hash
+    result_rules["version"] = version
+    result_rules["hash"] = new_hash
+
     with open(file_name, 'w', encoding='utf-8') as output_file:
-        result_rules_str = json.dumps(sort_dict(result_rules), ensure_ascii=False, indent=2)
-        result_rules_str = result_rules_str.replace('\\\\', '\\')
-        output_file.write(result_rules_str)
+        output_file.write(json.dumps(sort_dict(result_rules), ensure_ascii=False, indent=2))
 
     srs_path = file_name.replace(".json", ".srs")
     os.system(f"sing-box rule-set compile --output {srs_path} {file_name}")
