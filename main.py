@@ -138,6 +138,9 @@ def parse_list_file(link, output_directory):
         if 'geoip' in link.lower():
             file_name = os.path.join(output_directory, 'CNIP.json')
             srs_path = os.path.join(output_directory, 'CNIP.srs')
+        elif 'geosite' in link.lower():
+            file_name = os.path.join(output_directory, 'CNSITE.json')
+            srs_path = os.path.join(output_directory, 'CNSITE.srs')
         else:
             file_name = os.path.join(output_directory, f"{os.path.basename(link).split('.')[0]}.json")
             srs_path = file_name.replace(".json", ".srs")
