@@ -18,5 +18,6 @@
         "proactivebackend-pa.googleapis.com"
       ]
     }
-  ]
+  ],
+  "version": 1
 }

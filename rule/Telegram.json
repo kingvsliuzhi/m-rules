@@ -57,5 +57,6 @@
         "telegram-desktop"
       ]
     }
-  ]
+  ],
+  "version": 1
 }
