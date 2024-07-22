@@ -115,6 +115,13 @@ def parse_list_file(link):
         print(f'获取链接出错，已跳过：{link}')
         return pd.DataFrame(), []
 
+def get_version(file_path):
+    if os.path.exists(file_path):
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            return data.get('version', 0) + 1
+    return 1
+
 with open("../links.txt", 'r') as links_file:
     links = links_file.read().splitlines()
 
@@ -147,8 +154,9 @@ for base_name, data in results.items():
     os.makedirs(output_dir, exist_ok=True)
 
     file_name = os.path.join(output_dir, f"{base_name}.json")
+    version = get_version(file_name)
 
-    result_rules = {"rules": []}
+    result_rules = {"version": version, "rules": []}
     domain_entries = []
     for pattern, addresses in df.groupby('pattern')['address'].apply(list).to_dict().items():
         if pattern == 'domain_suffix':
