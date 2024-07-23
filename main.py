@@ -119,7 +119,7 @@ def get_version(file_path):
     if os.path.exists(file_path):
         with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
-            return data.get('version', 0) + 1
+            return data.get('version', 1)
     return 1
 
 with open("../links.txt", 'r') as links_file:
