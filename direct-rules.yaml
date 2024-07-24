@@ -1,4 +1,7 @@
 # NAME: Direct-rules
 payload:
-# Cloudflare
-  - DOMAIN-SUFFIX,qq.com
+# Customer
+  - DOMAIN-SUFFIX,icloudnative.io
+  - DOMAIN-SUFFIX,fuckcloudnative.io
+  - DOMAIN-SUFFIX,sealos.io
+  - DOMAIN-SUFFIX,cdn.jsdelivr.net
