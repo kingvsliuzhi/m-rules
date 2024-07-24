@@ -7,6 +7,20 @@
         "icloudnative.io",
         "sealos.io"
       ]
+    },
+    {
+      "process_name": [
+        "NemoDesktop",
+        "Tailscale",
+        "TencentMeeting",
+        "ToDesk",
+        "ToDesk_Service",
+        "Tunnelblick",
+        "WeChat",
+        "kubectl",
+        "softwareupdated",
+        "wireguard-go"
+      ]
     }
   ],
   "version": 1
