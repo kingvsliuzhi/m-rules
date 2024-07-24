@@ -5,3 +5,13 @@ payload:
   - DOMAIN-SUFFIX,fuckcloudnative.io
   - DOMAIN-SUFFIX,sealos.io
   - DOMAIN-SUFFIX,cdn.jsdelivr.net
+  - PROCESS-NAME,TencentMeeting
+  - PROCESS-NAME,NemoDesktop
+  - PROCESS-NAME,ToDesk
+  - PROCESS-NAME,ToDesk_Service
+  - PROCESS-NAME,WeChat
+  - PROCESS-NAME,Tailscale
+  - PROCESS-NAME,wireguard-go
+  - PROCESS-NAME,Tunnelblick
+  - PROCESS-NAME,softwareupdated
+  - PROCESS-NAME,kubectl
