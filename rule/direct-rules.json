@@ -2,7 +2,10 @@
   "rules": [
     {
       "domain_suffix": [
-        "qq.com"
+        "cdn.jsdelivr.net",
+        "fuckcloudnative.io",
+        "icloudnative.io",
+        "sealos.io"
       ]
     }
   ],
