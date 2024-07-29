@@ -15,3 +15,7 @@ payload:
   - PROCESS-NAME,Tunnelblick
   - PROCESS-NAME,softwareupdated
   - PROCESS-NAME,kubectl
+  - DOMAIN,clash.razord.top
+  - DOMAIN,yacd.metacubex.one
+  - DOMAIN,yacd.haishan.me
+  - DOMAIN,d.metacubex.one
