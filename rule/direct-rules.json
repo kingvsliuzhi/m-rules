@@ -1,6 +1,14 @@
 {
   "rules": [
     {
+      "domain": [
+        "clash.razord.top",
+        "d.metacubex.one",
+        "yacd.haishan.me",
+        "yacd.metacubex.one"
+      ]
+    },
+    {
       "domain_suffix": [
         "cdn.jsdelivr.net",
         "fuckcloudnative.io",
