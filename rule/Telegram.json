@@ -54,7 +54,8 @@
         "Telegram.exe",
         "nekox.messenger",
         "org.telegram.messenger",
-        "telegram-desktop"
+        "telegram-desktop",
+        "tw.nekomimi.nekogram"
       ]
     }
   ],
