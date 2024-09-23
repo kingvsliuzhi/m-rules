@@ -68,7 +68,7 @@ def parse_and_convert_to_dataframe(link):
         try:
             yaml_data = read_yaml_from_url(link)
             rows = []
-            if isinstance(yaml_data, dict):
+            if not isinstance(yaml_data, str):
                 items = yaml_data.get('payload', [])
             else:
                 lines = yaml_data.splitlines()
@@ -122,33 +122,6 @@ def get_version(file_path):
             return data.get('version', 1)
     return 1
 
-# 新增函数：合并多个 YAML 文件
-def merge_yaml_from_links(links):
-    merged_payload = []
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        future_to_link = {executor.submit(read_yaml_from_url, link): link for link in links}
-        for future in concurrent.futures.as_completed(future_to_link):
-            link = future_to_link[future]
-            try:
-                yaml_data = future.result()
-                if isinstance(yaml_data, dict):
-                    payload = yaml_data.get('payload', [])
-                    merged_payload.extend(payload)
-                elif isinstance(yaml_data, list):
-                    merged_payload.extend(yaml_data)
-                elif isinstance(yaml_data, str):
-                    lines = yaml_data.splitlines()
-                    for line in lines:
-                        stripped_line = line.strip()
-                        if stripped_line:
-                            merged_payload.append(stripped_line)
-                else:
-                    print(f'未知的 YAML 数据类型来自 {link}')
-            except Exception as e:
-                print(f'Error fetching YAML from {link}: {e}')
-    return {'payload': merged_payload}
-
-# 读取并处理 links.txt
 with open("../links.txt", 'r') as links_file:
     links = links_file.read().splitlines()
 
@@ -198,6 +171,11 @@ for base_name, data in results.items():
     if domain_entries:
         result_rules["rules"].insert(0, {'domain': domain_entries})
 
+    """
+    if rules_list != []:
+        result_rules["rules"].extend(rules_list)
+    """
+
     with open(file_name, 'w', encoding='utf-8') as output_file:
         result_rules_str = json.dumps(sort_dict(result_rules), ensure_ascii=False, indent=2)
         result_rules_str = result_rules_str.replace('\\\\', '\\')
@@ -206,26 +184,6 @@ for base_name, data in results.items():
     srs_path = file_name.replace(".json", ".srs")
     os.system(f"sing-box rule-set compile --output {srs_path} {file_name}")
 
-# 新增部分：处理 fake-link.txt 并合并为一个 YAML 文件
-def process_fake_links(output_dir):
-    fake_links_file_path = "../fake-link.txt"
-    if not os.path.exists(fake_links_file_path):
-        print(f"文件 {fake_links_file_path} 不存在，跳过合并 fake-link.")
-        return
-
-    with open(fake_links_file_path, 'r') as fake_links_file:
-        fake_links = fake_links_file.read().splitlines()
-
-    fake_links = [l for l in fake_links if l.strip() and not l.strip().startswith("#")]
-
-    if not fake_links:
-        return
-
-    merged_yaml = merge_yaml_from_links(fake_links)
-
-    merged_yaml_file = os.path.join(output_dir, "fake-ip.yaml")
-    with open(merged_yaml_file, 'w', encoding='utf-8') as output_file:
-        yaml.dump(sort_dict(merged_yaml), output_file, allow_unicode=True)
-
-# 处理并合并 fake-link
-process_fake_links(output_dir)
+# 打印生成的文件名
+# for file_name in result_file_names:
+    # print(file_name)
