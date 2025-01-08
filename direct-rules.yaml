@@ -19,12 +19,17 @@ payload:
   - DOMAIN,yacd.metacubex.one
   - DOMAIN,yacd.haishan.me
   - DOMAIN,d.metacubex.one
- # 少数派 
+# 少数派 
   - DOMAIN-SUFFIX,kjeek.com
- # Private
+# Private
   - IP-CIDR,192.168.0.0/16
   - IP-CIDR,10.0.0.0/8
   - IP-CIDR,172.16.0.0/12
   - IP-CIDR,127.0.0.0/8
   - IP-CIDR,100.64.0.0/10
   - IP-CIDR6,fe80::/10
+# Private
+  - DOMAIN-SUFFIX,nexon.com
+  - DOMAIN-SUFFIX,nexon.io
+  - DOMAIN-SUFFIX,nexon.co.jp
+  - DOMAIN-SUFFIX,nexoncdn.co.kr
