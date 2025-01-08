@@ -28,7 +28,7 @@ payload:
   - IP-CIDR,127.0.0.0/8
   - IP-CIDR,100.64.0.0/10
   - IP-CIDR6,fe80::/10
-# Private
+# nexon
   - DOMAIN-SUFFIX,nexon.com
   - DOMAIN-SUFFIX,nexon.io
   - DOMAIN-SUFFIX,nexon.co.jp
