@@ -19,6 +19,7 @@ payload:
   - DOMAIN,yacd.metacubex.one
   - DOMAIN,yacd.haishan.me
   - DOMAIN,d.metacubex.one
+  - SRC-IP-CIDR,10.88.88.99/32
 # 少数派 
   - DOMAIN-SUFFIX,kjeek.com
 # Private
