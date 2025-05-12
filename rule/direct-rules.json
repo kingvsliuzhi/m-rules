@@ -44,6 +44,11 @@
         "softwareupdated",
         "wireguard-go"
       ]
+    },
+    {
+      "source_ip_cidr": [
+        "10.88.88.99/32"
+      ]
     }
   ],
   "version": 1
