@@ -29,3 +29,4 @@ payload:
   - DOMAIN-SUFFIX,browserleaks.org
   - DOMAIN,idev.dev
   - DOMAIN,web.tabbit.ai
+  - IP-CIDR,161.33.147.125/24
